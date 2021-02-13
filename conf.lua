@@ -3,7 +3,5 @@ function love.conf(t)
     t.window.height = 0
     t.window.fullscreen = true
     t.window.icon = "images/icon.png"
-    t.window.title = "aJeKiLoMu"
-    -- t.window.console = true
-    -- love.graphics.setScissor( )
+    t.window.title = "Bobail"
 end
