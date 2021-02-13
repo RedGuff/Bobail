@@ -4,8 +4,7 @@ function love.load()
   maxY = maxX -- Square!
   sizeCase = 100
   marge = 5
-  XKb1 = 4
-  YKb1 = 2
+
   initialisation( )
 end
 
@@ -25,7 +24,8 @@ function initialisation()
       end
     end
   end
-
+  XKb1 = 3
+  YKb1 = maxY
 
 end
 
@@ -63,13 +63,38 @@ end
 
 
 function love.keypressed(key)
+if (key == "up") then
+YKb1 = YKb1 - 1 -- Inverted.
+  end
+if (key == "down") then
+YKb1 = YKb1 + 1 -- Inverted.
+  end
+if (key == "right") then
+XKb1 = XKb1 + 1 -- Not inverted.
+  end
+if (key == "left") then
+XKb1 = XKb1 - 1 -- Not inverted.
+  end
+if (YKb1 == 0) then
+YKb1 = maxY
+  end
+if (XKb1 == 0) then
+XKb1 = maxX
+  end
+if (YKb1 > maxY) then
+YKb1 = 1
+  end
+if (XKb1 > maxX) then
+XKb1 = 1
+  end
+
 
 end
 
 
 function love.keyreleased(key)
-  -- action = nil
-  if key == "escape" then
+
+  if (key == "escape") then
     love.event.quit()
   end
 end
