@@ -1,2 +1,2 @@
 # Bobail
-An african game. WIP, not working now.
+An african game. WIP, working poorely.
