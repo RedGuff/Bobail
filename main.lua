@@ -21,6 +21,7 @@ function love.load()
  maxY = maxX -- Square!
   -- maxY = 5 -- May be not square!
   marge = 5 -- pixels.
+    intro = true
   initialisation( )
   clicsound = love.audio.newSource("sounds/Clic.wav", "static")
   clicsound1 = love.audio.newSource("sounds/Clic.wav", "static")
@@ -28,9 +29,14 @@ function love.load()
   music1 = love.audio.newSource("sounds/start.mp3", "stream")   -- https://soundbible.com/1589-Computer-Start-Up.html
 
   introImage= love.graphics.newImage("images/intro.png")
+
+  --
+end
+
+function initialisation()
   player = 1
   bobailToPlay = false
-  intro = true
+
   player1Wins = false
   player2Wins = false
   --player1Wins = true
@@ -45,15 +51,13 @@ function love.load()
   levelAI={}
   levelAI[1] = 1
   levelAI[2] = 1
-  --
-end
-
-function initialisation()
-
+gridPossible={}
   grid={}
   for col=1, maxX do
     grid[col] = {}
+     gridPossible[col] = {}
     for row=1, maxY do
+      gridPossible[col][row] = false
       if (row == 1) then
         grid[col][row] = 2 -- UpPlayer.
       elseif ((col == row) and (row == math.ceil(maxX/2))) then
@@ -71,7 +75,7 @@ function initialisation()
   XKb1 = 3
   YKb1 = maxY
   hand = 0
-  erasePossible()
+  --erasePossible()
 
 end
 
@@ -84,6 +88,8 @@ function Color(p)
     love.graphics.setColor(0, 0, 1)
   elseif (p == 3) then  -- Bobail
     love.graphics.setColor(1, 1, 0)
+  elseif (p == 4) then -- Possible = true
+    love.graphics.setColor(1, 1, 1)
   end
 
 end
@@ -137,7 +143,14 @@ function love.draw()
           erasePossible()
           smiley( row, col, false)
           endgame = true
-
+        elseif ((grid[col][row]  == 3) and ((row == 1) or (row == maxY) ) ) then -- Bobail a one end.
+          erasePossible()
+          smiley( row, col, true)
+          endgame = true
+ elseif ((grid[col][row]  == 3 )and( babailBlocked())) then -- Bobail blocked.
+          erasePossible()
+          smiley( row, col, false)
+          endgame = true
         end
       end
 --coordonnées    ?
@@ -149,11 +162,11 @@ function love.draw()
 end
 
 function erasePossible()
-  gridPossible={}
+--  gridPossible={}
   for col=1, maxX do
-    gridPossible[col] = {}
+ --   gridPossible[col] = {}
     for row=1, maxX do
-      gridPossible[col][row]= true
+      gridPossible[col][row]= false
     end
   end
 
@@ -162,7 +175,7 @@ function erasePossible()
 end
 
 function smiley(row, col, win)
-  Color(0)
+  Color(0) -- same color as background: always visble!
   love.graphics.circle( "fill", (-sizeCase/6) + marge + (col * sizeCase), (-3 * sizeCase/30) + marge + (row * sizeCase), sizeCase/20 )
   love.graphics.circle( "fill", (sizeCase/6) + marge + (col * sizeCase), (-3 * sizeCase/30) + marge + (row * sizeCase), sizeCase/20 )
   if (win == true) then
@@ -307,6 +320,26 @@ function eval(changeReal)-- changeReal is false for AI.
   end
 end
 
+function babailBlocked()
+for x = XBobail -1, XBobail +1 do
+for y = YBobail -1, YBobail +1 do
+
+if possibleToPlay(x,y) then
+return false
+end
+
+end
+end
+endgame = true
+  
+if player == 2 then
+  player1Wins = true
+  else
+  player2Wins = true
+end
+return true
+end
+
 function possibleToPlay(x,y) -- Not out of board, free place.
   if ((x<1) or (x > maxX) or (y<1) or (y > maxY)) then
     return false
@@ -320,10 +353,16 @@ end
 function love.keyreleased(key)
   if ((key == "escape") and (intro == true))then
     intro  = false
-
-  elseif ((key == "escape") and (intro == false))then
+ 
+  elseif ((key == "escape") and (endgame == true))then
     love.event.quit()
+  
+    elseif ((key == "f2") and (endgame == true))then
+    love.event.quit()
+initialisation( )
   end
+
+
 
 
   if ((hand == 0) and (key == "return") and (test() ) and ( ((grid[XKb1][YKb1] == player) and (bobailToPlay == false)) or ((grid[XKb1][YKb1] == 3) and (bobailToPlay == true))) ) then
