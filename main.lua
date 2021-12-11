@@ -7,23 +7,30 @@
 -- Documentation.
 -- Sound.
 -- IA.
--- Intro.
+-- Intro : image à refaire.
+-- Icone : image à refaire.
+-- Display player to play.
+
+-- Souris à gérer
+-- Joystick à gérer
 -- F2 restart.
 -- F1 help.
-
-
+-- Bobail sourit si arrivé et antisourit si bloqué. TODO
 function love.load()
-  maxX = 5 -- ODD(?)! 5 minimum!  BAD GRAPH if not 5. BUG!
-  maxY = maxX -- Square!
-  marge = 5
+  maxX = 5 -- ODD(?)! 5 minimum! 
+ maxY = maxX -- Square!
+  -- maxY = 5 -- May be not square!
+  marge = 5 -- pixels.
   initialisation( )
   clicsound = love.audio.newSource("sounds/Clic.wav", "static")
   clicsound1 = love.audio.newSource("sounds/Clic.wav", "static")
   clicsound2 = love.audio.newSource("sounds/Clic.wav", "static")
+  music1 = love.audio.newSource("sounds/start.mp3", "stream")   -- https://soundbible.com/1589-Computer-Start-Up.html
+
+  introImage= love.graphics.newImage("images/intro.png")
   player = 1
   bobailToPlay = false
   intro = true
-  introImage= love.graphics.newImage("images/intro.png")
   player1Wins = false
   player2Wins = false
   --player1Wins = true
@@ -42,10 +49,11 @@ function love.load()
 end
 
 function initialisation()
+
   grid={}
   for col=1, maxX do
     grid[col] = {}
-    for row=1, maxX do
+    for row=1, maxY do
       if (row == 1) then
         grid[col][row] = 2 -- UpPlayer.
       elseif ((col == row) and (row == math.ceil(maxX/2))) then
@@ -75,7 +83,7 @@ function Color(p)
   elseif (p == 2) then -- Player = 2
     love.graphics.setColor(0, 0, 1)
   elseif (p == 3) then  -- Bobail
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(1, 1, 0)
   end
 
 end
@@ -85,18 +93,16 @@ end
 
 function love.draw()
   if (intro == true) then
-
-
+  music1:play()
     love.graphics.draw(introImage, 0, 0, 0,  love.graphics.getWidth()/introImage:getWidth(),  love.graphics.getHeight()/introImage:getHeight())
-
   else
 
 
-    sizeCase = math.min(love.graphics.getWidth( )/6,  love.graphics.getHeight( )/6) -- Real time!   :-D
+    sizeCase = math.min(love.graphics.getWidth( )/(maxX + 1),  love.graphics.getHeight( )/(maxY + 1)) -- Real time!   :-D
 
     love.graphics.setColor(0.35, 0.22, 0.13)
 
-    love.graphics.rectangle( "fill", marge + sizeCase/2, marge + sizeCase/2, maxX * sizeCase, maxX * sizeCase, 15, 15, 100 )    --  board.
+    love.graphics.rectangle( "fill", marge + sizeCase/2, marge + sizeCase/2, maxX * sizeCase, maxY * sizeCase, 15, 15, 100 )    --  board.
 --  love.graphics.setColor(1, 1, 0)
 
     Color(2)
@@ -113,20 +119,22 @@ function love.draw()
     love.graphics.circle("fill", marge + XKb1 * sizeCase, marge + YKb1* sizeCase, sizeCase/2, 100) -- hand.
 
     for col=1, maxX do
-      for row=1, maxX do
+      for row=1, maxY do
 
         Color(grid[col][row])
         love.graphics.circle("fill", marge + col * sizeCase, marge + row * sizeCase, (sizeCase/2)-8, 100)
 
         if (gridPossible[col][row] == true) then
-          Color(player)
+          --  Color(player)
+          Color(0)
           love.graphics.circle("fill", marge + col * sizeCase, marge + row * sizeCase, 5, 100)
 
         elseif (((player1Wins) and (grid[col][row]  == 1)  ) or (player2Wins) and (grid[col][row]  == 2)   ) then
-
+          erasePossible()
           smiley(row, col, true)
           endgame = true
         elseif (((player2Wins) and (grid[col][row]  == 1)  ) or (player1Wins) and (grid[col][row]  == 2)   ) then
+          erasePossible()
           smiley( row, col, false)
           endgame = true
 
@@ -145,7 +153,7 @@ function erasePossible()
   for col=1, maxX do
     gridPossible[col] = {}
     for row=1, maxX do
-      gridPossible[col][row]= false
+      gridPossible[col][row]= true
     end
   end
 
@@ -256,14 +264,14 @@ function eval(changeReal)-- changeReal is false for AI.
     if ( message == "loser") then
       if (player == 2) then
         if (changeReal == true) then
-
+ erasePossible()
           player1Wins = true
         end
         evaluation= maxY
       else
 
         if (changeReal == true) then
-
+ erasePossible()
           player2Wins = true
         end
         evaluation = 1
@@ -298,6 +306,7 @@ function eval(changeReal)-- changeReal is false for AI.
     return evaluation
   end
 end
+
 function possibleToPlay(x,y) -- Not out of board, free place.
   if ((x<1) or (x > maxX) or (y<1) or (y > maxY)) then
     return false

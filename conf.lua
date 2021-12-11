@@ -4,4 +4,5 @@ function love.conf(t)
     t.window.fullscreen = true
     t.window.icon = "images/icon.png"
     t.window.title = "Bobail"
+    t.console =  true
 end
